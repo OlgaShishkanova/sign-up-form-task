@@ -1,9 +1,12 @@
+import "./assets/scss/index.scss";
+import { Container } from "react-bootstrap";
+import SignUpForm from "./components/SignUpForm";
 
 function App() {
   return (
-    <div className="">
-      Test
-    </div>
+    <Container>
+      <SignUpForm />
+    </Container>
   );
 }
 
