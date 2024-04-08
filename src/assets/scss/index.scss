@@ -4,6 +4,7 @@ $success: #198754;
 $danger: #bb2d3b;
 $light: #f6f8f8;
 $dark: #212529;
+$warning: orange;
 
 $theme-colors: (
   primary: $primary,
@@ -12,6 +13,8 @@ $theme-colors: (
   danger: $danger,
   light: $light,
   dark: $dark,
+  warning: $warning,
 );
 
 @import "~bootstrap/scss/bootstrap";
+@import "./app.scss";
