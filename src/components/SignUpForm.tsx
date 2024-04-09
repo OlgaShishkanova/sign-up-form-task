@@ -23,15 +23,14 @@ const SignUpForm: React.FC = () => {
     watch,
     formState: { errors },
   } = useForm<IFormInput>();
-  const onSubmit: SubmitHandler<IFormInput> = (data) => console.log(data);
+  const onSubmit: SubmitHandler<IFormInput> = (data) =>
+    console.log("Data from form was submitted:", data);
   const [passLevel, changePassLevel] = useState(PassLevel.Low);
   const watchPass = watch("password", "");
 
   const passwordBasicCheck = (value: string) => {
     if (value.length < 6) {
       return "Password should have 6 or more symbols";
-    } else if (value.length > 30) {
-      return "Password should not have more then 30 symbols";
     } else if (value.search(/\d/) == -1) {
       return "Password should contain at least one digit";
     } else if (value.search(/[a-zA-Z]/) == -1) {
@@ -40,19 +39,29 @@ const SignUpForm: React.FC = () => {
     return true;
   };
 
-  const passwordExtraCheck = (value: string) => {
-    if (value.length > 6 && value.length <= 10) {
-      return PassLevel.Mid;
-    } else if (value.length > 10 && value.length <= 30) {
-      return PassLevel.High;
-    }
-    return PassLevel.Low;
+  const isStrongPassword = (value: string) => {
+    // strong password requires min 10 symbols. At least 1 lowercase letter,
+    // 1 uppercase letter, 1 digit and 1 special character among these !@#$%^&*()_+
+    const strongPasswordRegex =
+      /^(?=.*\d)(?=.*[a-zA-Z])(?=.*[!@#$%^&*()_+]).{10,}$/;
+    return strongPasswordRegex.test(value);
+  };
+
+  const isMediumPassword = (value: string) => {
+    // strong password requires min 8 symbols. At least 1 lowercase letter,
+    // 1 uppercase letter and 1 digit
+    const mediumPasswordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+    return mediumPasswordRegex.test(value);
   };
 
   useEffect(() => {
     const basicCheck = passwordBasicCheck(watchPass);
     if (basicCheck === true) {
-      changePassLevel(passwordExtraCheck(watchPass));
+      isStrongPassword(watchPass)
+        ? changePassLevel(PassLevel.High)
+        : isMediumPassword(watchPass)
+        ? changePassLevel(PassLevel.Mid)
+        : changePassLevel(PassLevel.Low);
     } else {
       changePassLevel(PassLevel.Low);
     }
