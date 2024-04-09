@@ -1,6 +1,5 @@
 import React from "react";
-import { Button, Form } from "react-bootstrap";
-import { useForm, SubmitHandler, FieldErrors } from "react-hook-form";
+import { FieldErrors } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
 
 interface Props {
@@ -14,7 +13,7 @@ const ErrorComponent: React.FC<Props> = ({ name, errors }) => {
       errors={errors}
       name={name}
       render={({ message }) => (
-        <div>
+        <div role="alert">
           <small className="text-danger">{message}</small>
         </div>
       )}

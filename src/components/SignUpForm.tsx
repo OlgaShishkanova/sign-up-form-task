@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { Button, Form, ProgressBar } from "react-bootstrap";
-import { useForm, SubmitHandler } from "react-hook-form";
+import React from "react";
+import { Button, Form } from "react-bootstrap";
+import { useForm, SubmitHandler, FormProvider } from "react-hook-form";
 import ErrorComponent from "../shared/ErrorComponent";
+import PasswordField from "./PasswordField";
 
 interface IFormInput {
   firstName: string;
@@ -10,153 +11,66 @@ interface IFormInput {
   password: string;
 }
 
-enum PassLevel {
-  Low = "Low",
-  Mid = "Medium",
-  High = "High",
-}
-
 const SignUpForm: React.FC = () => {
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm<IFormInput>();
+  const methods = useForm<IFormInput>();
+  const errors = methods.formState.errors;
   const onSubmit: SubmitHandler<IFormInput> = (data) =>
     console.log("Data from form was submitted:", data);
-  const [passLevel, changePassLevel] = useState(PassLevel.Low);
-  const watchPass = watch("password", "");
-
-  const passwordBasicCheck = (value: string) => {
-    if (value.length < 6) {
-      return "Password should have 6 or more symbols";
-    } else if (value.search(/\d/) == -1) {
-      return "Password should contain at least one digit";
-    } else if (value.search(/[a-zA-Z]/) == -1) {
-      return "Password should contain at least one letter";
-    }
-    return true;
-  };
-
-  const isStrongPassword = (value: string) => {
-    // strong password requires min 10 symbols. At least 1 lowercase letter,
-    // 1 uppercase letter, 1 digit and 1 special character among these !@#$%^&*()_+
-    const strongPasswordRegex =
-      /^(?=.*\d)(?=.*[a-zA-Z])(?=.*[!@#$%^&*()_+]).{10,}$/;
-    return strongPasswordRegex.test(value);
-  };
-
-  const isMediumPassword = (value: string) => {
-    // strong password requires min 8 symbols. At least 1 lowercase letter,
-    // 1 uppercase letter and 1 digit
-    const mediumPasswordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
-    return mediumPasswordRegex.test(value);
-  };
-
-  useEffect(() => {
-    const basicCheck = passwordBasicCheck(watchPass);
-    if (basicCheck === true) {
-      isStrongPassword(watchPass)
-        ? changePassLevel(PassLevel.High)
-        : isMediumPassword(watchPass)
-        ? changePassLevel(PassLevel.Mid)
-        : changePassLevel(PassLevel.Low);
-    } else {
-      changePassLevel(PassLevel.Low);
-    }
-  }, [watchPass]);
   return (
     <>
       <h2 className="text-center my-3">Sign Up </h2>
       <div className="mt-3 d-flex justify-content-center">
-        <Form className="w-50" onSubmit={handleSubmit(onSubmit)}>
-          <Form.Group className="mb-3">
-            <Form.Label>First Name</Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="Enter your First Name"
-              {...register("firstName", { required: "This field is required" })}
-            />
-            <ErrorComponent name="firstName" errors={errors} />
-          </Form.Group>
+        <FormProvider {...methods}>
+          <Form className="w-50" onSubmit={methods.handleSubmit(onSubmit)}>
+            <Form.Group className="mb-3">
+              <Form.Label>First Name</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter your First Name"
+                {...methods.register("firstName", {
+                  required: "This field is required",
+                })}
+              />
+              <ErrorComponent name="firstName" errors={errors} />
+            </Form.Group>
 
-          <Form.Group className="mb-3">
-            <Form.Label>Last Name</Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="Enter your Last Name"
-              {...register("lastName", { required: "This field is required" })}
-            />
-            <ErrorComponent name="lastName" errors={errors} />
-          </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Last Name</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter your Last Name"
+                {...methods.register("lastName", {
+                  required: "This field is required",
+                })}
+              />
+              <ErrorComponent name="lastName" errors={errors} />
+            </Form.Group>
 
-          <Form.Group className="mb-3">
-            <Form.Label>Email address</Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="Enter email"
-              {...register("email", {
-                required: "This field is required",
-                pattern: {
-                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: "Invalid email address",
-                },
-              })}
-            />
-            <ErrorComponent name="email" errors={errors} />
-          </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Email address</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter email"
+                {...methods.register("email", {
+                  required: "This field is required",
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: "Invalid email address",
+                  },
+                })}
+              />
+              <ErrorComponent name="email" errors={errors} />
+            </Form.Group>
 
-          <Form.Group className="mb-3">
-            <Form.Label>Password</Form.Label>
-            <Form.Control
-              type="password"
-              placeholder="Password"
-              {...register("password", {
-                required: "This field is required",
-                validate: {
-                  validatePass: (v) => passwordBasicCheck(v),
-                },
-              })}
-            />
-            {watchPass && (
-              <div className="d-flex justify-content-between mt-2">
-                <ProgressBar
-                  className="progress-bar__item"
-                  variant="danger"
-                  now={100}
-                  label={PassLevel.Low}
-                  key={1}
-                />
-                <ProgressBar
-                  className="progress-bar__item"
-                  variant="warning"
-                  now={
-                    passLevel === PassLevel.Mid || passLevel === PassLevel.High
-                      ? 100
-                      : 0
-                  }
-                  label={PassLevel.Mid}
-                  key={2}
-                />
-                <ProgressBar
-                  className="progress-bar__item"
-                  variant="success"
-                  now={passLevel === PassLevel.High ? 100 : 0}
-                  label={PassLevel.High}
-                  key={3}
-                />
-              </div>
-            )}
-            <ErrorComponent name="password" errors={errors} />
-          </Form.Group>
+            <PasswordField />
 
-          <div className="d-flex justify-content-center">
-            <Button variant="primary" type="submit">
-              Submit
-            </Button>
-          </div>
-        </Form>
+            <div className="d-flex justify-content-center">
+              <Button variant="primary" type="submit">
+                Submit
+              </Button>
+            </div>
+          </Form>
+        </FormProvider>
       </div>
     </>
   );
