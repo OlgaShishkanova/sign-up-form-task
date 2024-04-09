@@ -15,15 +15,15 @@ const PasswordField: React.FC = () => {
     watch,
     formState: { errors },
   } = useFormContext();
-  const [passLevel, changePassLevel] = useState(PassLevel.Low);
+  const [passLevel, changePassLevel] = useState("");
   const watchPass = watch("password", "");
 
   const passwordBasicCheck = (value: string) => {
     if (value.length < 6) {
       return "Password should have 6 or more symbols";
-    } else if (value.search(/\d/) == -1) {
+    } else if (value.search(/\d/) === -1) {
       return "Password should contain at least one digit";
-    } else if (value.search(/[a-zA-Z]/) == -1) {
+    } else if (value.search(/[a-zA-Z]/) === -1) {
       return "Password should contain at least one letter";
     }
     return true;
@@ -47,13 +47,15 @@ const PasswordField: React.FC = () => {
   useEffect(() => {
     const basicCheck = passwordBasicCheck(watchPass);
     if (basicCheck === true) {
-      isStrongPassword(watchPass)
-        ? changePassLevel(PassLevel.High)
-        : isMediumPassword(watchPass)
-        ? changePassLevel(PassLevel.Mid)
-        : changePassLevel(PassLevel.Low);
+      if (isStrongPassword(watchPass)) {
+        changePassLevel(PassLevel.High);
+      } else {
+        isMediumPassword(watchPass)
+          ? changePassLevel(PassLevel.Mid)
+          : changePassLevel(PassLevel.Low);
+      }
     } else {
-      changePassLevel(PassLevel.Low);
+      changePassLevel("");
     }
   }, [watchPass]);
   return (
@@ -69,12 +71,12 @@ const PasswordField: React.FC = () => {
           },
         })}
       />
-      {watchPass && (
+      {passLevel && (
         <div className="d-flex justify-content-between mt-2">
           <ProgressBar
             className="progress-bar__item"
             variant="danger"
-            now={100}
+            now={passLevel ? 100 : 0}
             label={PassLevel.Low}
             key={1}
           />
