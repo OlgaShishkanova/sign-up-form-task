@@ -19,9 +19,9 @@ const SignUpForm: React.FC = () => {
   return (
     <>
       <h2 className="text-center my-3">Sign Up </h2>
-      <div className="mt-3 d-flex justify-content-center">
+      <div className="col col-md-6 mx-auto">
         <FormProvider {...methods}>
-          <Form className="w-50" onSubmit={methods.handleSubmit(onSubmit)}>
+          <Form onSubmit={methods.handleSubmit(onSubmit)}>
             <Form.Group className="mb-3">
               <Form.Label>First Name</Form.Label>
               <Form.Control
